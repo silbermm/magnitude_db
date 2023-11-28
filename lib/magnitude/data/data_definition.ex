@@ -25,14 +25,19 @@ defmodule Magnitude.Data.DataDefinition do
   end
 
   @spec validate(DataDefinition.t()) :: :valid | {:invalid, atom()}
-  def validate(%DataDefinition{columns: columns, table_definition: table_definition}) do
-    Enum.reduce_while(columns, :valid, fn %{name: name, value: value}, acc ->
-      column_definition = get_in(table_definition.columns, [name])
+  def validate(%DataDefinition{key: key, columns: columns, table_definition: table_definition}) do
+    # make sure the key is present in the columns...
+    if is_nil(Enum.find(columns, &(&1.name == key))) do
+      {:invalid, :primary_key_not_set}
+    else
+      Enum.reduce_while(columns, :valid, fn %{name: name, value: value}, acc ->
+        column_definition = get_in(table_definition.columns, [name])
 
-      case ColumnDefinition.validate(column_definition, value) do
-        :valid -> {:cont, acc}
-        err -> {:halt, err}
-      end
-    end)
+        case ColumnDefinition.validate(column_definition, value) do
+          :valid -> {:cont, acc}
+          err -> {:halt, err}
+        end
+      end)
+    end
   end
 end

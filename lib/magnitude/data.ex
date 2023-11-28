@@ -1,6 +1,7 @@
 defmodule Magnitude.Data do
   use GenServer
 
+  alias Magnitude.Schema.TableDefinition
   alias Magnitude.Data.DataDefinition
 
   def start_link(init_opts, opts) do
@@ -19,12 +20,14 @@ defmodule Magnitude.Data do
   def insert(pid, data), do: GenServer.call(pid, {:insert, data})
 
   def handle_call({:insert, data}, _from, state) do
+    primary_key = TableDefinition.get_primary_key(state.table_definition)
+
     column_data =
       for {key, value} <- data do
         %{name: key, value: value}
       end
 
-    data_definition = DataDefinition.new("", column_data, state.table_definition)
+    data_definition = DataDefinition.new(primary_key.name, column_data, state.table_definition)
 
     case DataDefinition.validate(data_definition) do
       :valid ->

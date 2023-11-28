@@ -32,7 +32,7 @@ defmodule Magnitude.Data.WorkerTest do
 
   def setup_table(_context) do
     columns = [
-      ColumnDefinition.new("id", :int, %{nullable: false}),
+      ColumnDefinition.new("id", :int, %{nullable: false, primary_key: true}),
       ColumnDefinition.new("name", :varchar, %{varchar_size: 20})
     ]
 

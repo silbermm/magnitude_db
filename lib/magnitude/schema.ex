@@ -60,10 +60,16 @@ defmodule Magnitude.Schema do
           Map.from_struct(definition)
         end
 
+      simplified_indexes =
+        for {type, column} <- indexes do
+          {type, column.name}
+        end
+        |> Map.new()
+
       ret = %{
         name: table_name,
         columns: simplified_columns,
-        indexes: indexes
+        indexes: simplified_indexes
       }
 
       {:reply, ret, schema}
@@ -77,5 +83,4 @@ defmodule Magnitude.Schema do
     IO.inspect("creating data dir (maybe)")
     {:noreply, state}
   end
-
 end

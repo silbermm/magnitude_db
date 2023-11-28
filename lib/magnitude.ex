@@ -24,9 +24,10 @@ defmodule Magnitude do
   """
   @spec create_table(binary(), list(tuple())) :: :ok | {:error, atom()}
   def create_table(table_name, columns) do
-    columns = for {name, type, opts} <- columns do
-      ColumnDefinition.new(name, type, opts)
-    end
+    columns =
+      for {name, type, opts} <- columns do
+        ColumnDefinition.new(name, type, opts)
+      end
 
     table_definition = TableDefinition.new(table_name, columns)
     Schema.create_table(table_definition)
@@ -38,7 +39,7 @@ defmodule Magnitude do
   ## Example
 
       iex> Magnitude.describe("testing_table")
-      %{name: "testing_table", columns: [%{name: "id", type: :int, type_options: %{nullable: false, primary_key: true}}], indexes: nil}
+      %{name: "testing_table", columns: [%{name: "id", type: :int, type_options: %{nullable: false, primary_key: true}}], indexes: %{primary_key: "id"}}
 
       iex> Magnitude.describe("non-existent-table")
       nil
@@ -47,7 +48,6 @@ defmodule Magnitude do
   def describe(table) do
     Schema.describe_table(table)
   end
-
 
   @doc """
   Inserts data into a table if the table exists
@@ -61,9 +61,10 @@ defmodule Magnitude do
   def insert(table, data) do
     # get data worker
     case DataSupervisor.find_data_worker(table) do
-      pid when is_pid(pid) -> 
+      pid when is_pid(pid) ->
         Data.insert(pid, data)
-      _ -> 
+
+      _ ->
         {:error, :noexist}
     end
   end
